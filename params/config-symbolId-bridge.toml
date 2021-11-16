@@ -1,0 +1,7 @@
+#
+[[SymbolId]]
+Chain="ETH-FTM"
+Symbol="WETH"
+SrcContractAddress="0x..."
+Id="weth"
+

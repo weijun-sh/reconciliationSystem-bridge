@@ -1,0 +1,8 @@
+#
+[BridgeInfo]
+NetAPI="https://..."
+MinTVL=1000000.0 # 100 m
+
+[Gateway]
+URL=["BSC,https://bsc-dataseed1.ninicoin.io/"]
+
