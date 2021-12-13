@@ -53,6 +53,10 @@ func getErc20Balance(client *ethclient.Client, contract, address string) (*big.F
 func callContract(client *ethclient.Client, msg ethereum.CallMsg) ([]byte, error) {
 	var i int
 	var result []byte
+	if client == nil {
+		fmt.Printf("callContract, client is nil.\n")
+		return []byte{}, com.ErrNoValueObtaind
+	}
 	var err error
 	for i = 0; i < getTokenCount; i++ {
 		result, err = client.CallContract(context.Background(), msg, nil)

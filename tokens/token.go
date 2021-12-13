@@ -63,8 +63,14 @@ func getBridgeTotalSupply(bl *params.BridgeConfig) (*big.Float, string) {
 func GetTokenBalances(bl *params.BridgeConfig) (*big.Float, string) {
 	//fmt.Printf("GetTokenBalances, bl: %v\n", bl)
 	srcChain := params.ChainId[bl.SrcChainId]
+	if srcChain == "" {
+		fmt.Printf("GetTokenBalances, srcChainId: %v not set\n", bl.SrcChainId)
+	}
 	chain := srcChain
 	destChain := params.ChainId[bl.ChainId]
+	if destChain == "" {
+		fmt.Printf("GetTokenBalances, destChainId: %v not set\n", bl.ChainId)
+	}
 	srcToken := bl.SrcToken
 	token := srcToken
 	depositAddr := bl.DepositAddr
