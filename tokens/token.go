@@ -234,7 +234,7 @@ func GetBtcBalance(bl *params.BridgeConfig) (*big.Float, string) {
 func printfHeader() {
 	minTvl := params.GetBridgeMinTvl()
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
-	fmt.Printf("ps. update every 10 minutes\n")
+	fmt.Printf("ps. update every 20 minutes\n")
 	fmt.Printf("ps. TVL(USD) >= %0.2f, sort descending\n", minTvl)
 	fmt.Printf("===================================================================================================================================\n")
 	fmt.Printf("                                                 BRIDGE COIN RECONCILIATION SYSTEM                                                 \n")
@@ -263,7 +263,13 @@ func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePr
 	symbol := strings.ToLower(bl.Symbol)
 	sp := fmt.Sprintf("%v-%v-%v", srcChain, destChain, symbol)
 	price := params.Price[sp]
+	if price <= 0.0 {
+		fmt.Printf("price is 0, sp: %v, srcToken: %v, Token: %v\n", sp, bl.SrcToken, bl.Token)
+	}
 	pricePrintf := fmt.Sprintf("%0.4f", price)
+	if price < 0.0001 {
+		pricePrintf = fmt.Sprintf("%f", price)
+	}
 	profitPriceTmp := big.NewFloat(0)
 	if !params.PriceExclude[bridge] && profit.Cmp(big.NewFloat(0)) > 0 && price > 0.0 {
 		priceBig := new(big.Float).SetFloat64(price)

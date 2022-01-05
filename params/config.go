@@ -48,6 +48,7 @@ func init() {
 	ChainId["321"] = "KCS"
 	ChainId["336"] = "SHI"
 	ChainId["42161"] = "ARB"
+	ChainId["42220"] = "CELO"
 	ChainId["43114"] = "AVAX"
 	ChainId["32659"] = "FSN"
 	ChainId["1666600000"] = "HARMONY"
@@ -55,6 +56,7 @@ func init() {
 	ChainId["BLOCK"] = "BLOCK"
 	ChainId["COLX"] = "COLX"
 	ChainId["LTC"] = "LTC"
+	ChainId["TERRA"] = "TERRA"
 
 	AnyToken["ETH2FTM-USDCoin"] = "0x7ea2be2df7ba6e54b1a9c70676f668455e329d29"
 	AnyToken["ETH2FTM-TetherUSD"] = "0x22648c12acd87912ea1710357b1302c6a4154ebc"
