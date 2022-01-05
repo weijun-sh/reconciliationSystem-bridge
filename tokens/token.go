@@ -38,7 +38,7 @@ func GetBalanceOfToken() {
 
 func getBridgeBalance(bl *params.BridgeConfig) (*big.Float, string) {
 	//fmt.Printf("getBridgeBalance, bl: %v\n", bl)
-	if bl.SrcToken == "" { // native
+	if bl.SrcToken == "" || bl.SrcToken == "0x0000000000000000000000000000000000000000" || len(bl.SrcToken) < 20 { // native
 		srcChain := params.ChainId[bl.SrcChainId]
 		if isBTCChain(srcChain) {
 			return GetBtcBalance(bl)
@@ -268,7 +268,7 @@ func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePr
 	}
 	pricePrintf := fmt.Sprintf("%0.4f", price)
 	if price < 0.0001 {
-		pricePrintf = fmt.Sprintf("%f", price)
+		pricePrintf = fmt.Sprintf("%v", price)
 	}
 	profitPriceTmp := big.NewFloat(0)
 	if !params.PriceExclude[bridge] && profit.Cmp(big.NewFloat(0)) > 0 && price > 0.0 {
