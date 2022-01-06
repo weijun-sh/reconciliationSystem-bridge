@@ -200,17 +200,32 @@ func GetEthBalance(bl *params.BridgeConfig) (*big.Float, string) {
 		bridgeChain = fmt.Sprintf("%vv2", bridgeChain)
 	}
 	url := params.Gateway[srcChain]
-	balanceTmp, balancePrint := getBalance4ETH(url, depositAddr)
+	var balanceTmp *big.Float
+	var balancePrint string
+	if isChainTerra(srcChain) {
+		balanceTmp, balancePrint = getBalance4TERRA(url, depositAddr, bl.Symbol)
+	} else {
+		balanceTmp, balancePrint = getBalance4ETH(url, depositAddr)
+	}
 	//fmt.Printf("GetETHBalance, bridgeChain: %v, addr: %v, balance: %0.2f\n", bridgeChain, depositAddr, balanceTmp)
 	if len(params.DespositAddress[bridgeChain]) > 0 { // address2
 		for _, addr := range params.DespositAddress[bridgeChain] {
-			balanceTmp2, _ := getBalance4ETH(url, addr)
+			var balanceTmp2 *big.Float
+			if isChainTerra(srcChain) {
+				balanceTmp2, _ = getBalance4TERRA(url, addr, bl.Symbol)
+			} else {
+				balanceTmp2, _ = getBalance4ETH(url, addr)
+			}
 			//fmt.Printf("GetETHBalance, bridgeChain: %v, addr: %v, balance: %0.2f\n", bridgeChain, addr, balanceTmp2)
 			balanceTmp = new(big.Float).Add(balanceTmp, balanceTmp2)
 			balancePrint = fmt.Sprintf("%0.2f", balanceTmp)
 		}
 	}
 	return balanceTmp, balancePrint
+}
+
+func isChainTerra(chain string) bool {
+	return strings.EqualFold(chain, "TERRA")
 }
 
 func GetBtcBalance(bl *params.BridgeConfig) (*big.Float, string) {

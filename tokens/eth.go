@@ -11,6 +11,9 @@ import (
 	"io/ioutil"
 	"math"
 	"math/big"
+	"strings"
+
+	bhttp "github.com/weijun-sh/reconciliationSystem-bridge/http"
 )
 
 type ethConfig struct {
@@ -52,6 +55,45 @@ func getBalance4ETH(url, address string) (*big.Float, string) {
 	}
 	//fmt.Printf("b: %v\n", basket)
 	b := getBalance4String(basket.Result, 18)
+	bs := fmt.Sprintf("%0.2f", b)
+	return b, bs
+}
+
+type terraBalance struct {
+	Balance []ustBalance
+}
+
+type ustBalance struct {
+	Denom string
+	Available string
+}
+
+func getBalance4TERRA(url, address, symbol string) (*big.Float, string) {
+	balanceUrl := fmt.Sprintf("%v/%v", url, address)
+	bridgeInfo := bhttp.HttpGet(balanceUrl)
+	info := terraBalance{}
+	err := json.Unmarshal([]byte(bridgeInfo), &info)
+	if err != nil {
+		fmt.Println(err)
+		return big.NewFloat(0), "~"
+	}
+	//fmt.Printf("b: %v\n", basket)
+	if strings.EqualFold(symbol, "UST") {
+		symbol = "uusd"
+	} else if strings.EqualFold(symbol, "LUNA") {
+		symbol = "uluna"
+	}
+	var balance string
+	for _, b := range info.Balance {
+		if strings.EqualFold(b.Denom, symbol) {
+			balance = b.Available
+			break
+		}
+	}
+	if balance == "" {
+		return big.NewFloat(0), "~"
+	}
+	b := getBalance4String(balance, 6)
 	bs := fmt.Sprintf("%0.2f", b)
 	return b, bs
 }
