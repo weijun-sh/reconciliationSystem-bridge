@@ -279,7 +279,7 @@ func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePr
 	sp := fmt.Sprintf("%v-%v-%v", srcChain, destChain, symbol)
 	price := params.Price[sp]
 	if price <= 0.0 {
-		fmt.Printf("price is 0, sp: %v, srcToken: %v, Token: %v\n", sp, bl.SrcToken, bl.Token)
+		fmt.Printf("price is 0.0, sp: %v, srcToken: %v, Token: %v, bl.Symbol: %v\n", sp, bl.SrcToken, bl.Token, bl.Symbol)
 	}
 	pricePrintf := fmt.Sprintf("%0.4f", price)
 	if price < 0.0001 {
