@@ -89,19 +89,19 @@ func GetTokenBalances(bl *params.BridgeConfig) (*big.Float, string) {
 		for _, addr := range params.DespositAddress[bridgeChain] {
 			balanceTmp2, _ := GetTokenBalance(chain, token, addr)
 			balanceTmp = new(big.Float).Add(balanceTmp, balanceTmp2)
-			balancePrint = fmt.Sprintf("%0.2f", balanceTmp)
+			balancePrint = printBalance(balanceTmp)
 		}
 	}
 	if len(params.AnyToken[bridge]) == 42 { // anyToken
 		anyToken := params.AnyToken[bridge]
 		balanceTmp2, _ := GetTokenBalance(chain, anyToken, depositAddr)
 		balanceTmp = new(big.Float).Add(balanceTmp, balanceTmp2)
-		balancePrint = fmt.Sprintf("%0.2f", balanceTmp)
+		balancePrint = printBalance(balanceTmp)
 		if len(params.DespositAddress[bridgeChain]) > 0 { // address2
 			for _, addr := range params.DespositAddress[bridgeChain] {
 				balanceTmp2, _ := GetTokenBalance(chain, anyToken, addr)
 				balanceTmp = new(big.Float).Add(balanceTmp, balanceTmp2)
-				balancePrint = fmt.Sprintf("%0.2f", balanceTmp)
+				balancePrint = printBalance(balanceTmp)
 			}
 		}
 	}
@@ -111,6 +111,14 @@ func GetTokenBalances(bl *params.BridgeConfig) (*big.Float, string) {
 		balanceTmp = new(big.Float).Add(balanceTmp, c)
 	}
 	return balanceTmp, balancePrint
+}
+
+func printBalance(balanceTmp *big.Float) string {
+	big100 := big.NewFloat(10000000000)
+	if balanceTmp.Cmp(big100) >= 0 {
+		return fmt.Sprintf("%e", balanceTmp)
+	}
+	return fmt.Sprintf("%0.2f", balanceTmp)
 }
 
 func isBTCChain(chain string) bool {
@@ -129,7 +137,7 @@ func GetTokenBalance(chain, contract, addr string) (*big.Float, string) {
 	case errors.Is(err, common.ErrAddressInValid):
 		balanceP = "*addrInValid"
 	case errors.Is(err, nil):
-		balanceP = fmt.Sprintf("%0.2f", balance)
+		balanceP = printBalance(balance)
 	}
 	//fmt.Printf("GetTokenBalance, contract: %v, addr: %v, balance: %0.2f\n", contract, addr, balance)
 	return balance, balanceP
@@ -172,7 +180,7 @@ func GetTokenTotalSupply(bl *params.BridgeConfig) (*big.Float, string) {
 	case errors.Is(err, common.ErrAddressInValid):
 		totalSuplyPrint = "*addrInvalid"
 	case errors.Is(err, nil):
-		totalSuplyPrint = fmt.Sprintf("%0.2f", totalSupplyTmp)
+		totalSuplyPrint = printBalance(totalSupplyTmp)
 	}
 	return totalSupplyTmp, totalSuplyPrint
 }
@@ -218,7 +226,7 @@ func GetEthBalance(bl *params.BridgeConfig) (*big.Float, string) {
 			}
 			//fmt.Printf("GetETHBalance, bridgeChain: %v, addr: %v, balance: %0.2f\n", bridgeChain, addr, balanceTmp2)
 			balanceTmp = new(big.Float).Add(balanceTmp, balanceTmp2)
-			balancePrint = fmt.Sprintf("%0.2f", balanceTmp)
+			balancePrint = printBalance(balanceTmp)
 		}
 	}
 	return balanceTmp, balancePrint
@@ -254,8 +262,8 @@ func printfHeader() {
 	fmt.Printf("===================================================================================================================================\n")
 	fmt.Printf("                                                 BRIDGE COIN RECONCILIATION SYSTEM                                                 \n")
 	fmt.Printf("===================================================================================================================================\n")
-	fmt.Printf("    | name                  | srcChain chain UnderlyingBalance  TotalSupply |          profit |           price |      total(USD)\n")
-	fmt.Printf("----+-----------------------+-----------------------------------------------+ ----------------+-----------------+------------------\n")
+	fmt.Printf("    | name                  | srcChain chain UnderlyingBalance    TotalSupply |          profit |         price |      total(USD)\n")
+	fmt.Printf("----+-----------------------+-------------------------------------------------+-----------------+---------------+------------------\n")
 }
 
 func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePrint string, totalSupplyTmp *big.Float, totalSuplyPrint string) {
@@ -286,16 +294,16 @@ func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePr
 		pricePrintf = fmt.Sprintf("%v", price)
 	}
 	profitPriceTmp := big.NewFloat(0)
-	if !params.PriceExclude[bridge] && profit.Cmp(big.NewFloat(0)) > 0 && price > 0.0 {
+	if !params.PriceExclude[bridge] && profit.Cmp(big.NewFloat(0)) >= 0 && price > 0.0 {
 		priceBig := new(big.Float).SetFloat64(price)
 		profitPriceTmp = new(big.Float).Mul(profit, priceBig)
-		profitPricePrintf = fmt.Sprintf("%0.2f", profitPriceTmp)
+		profitPricePrintf = printBalance(profitPriceTmp)
 	}
 
-	profitPrintf := fmt.Sprintf("%0.2f", profit)
+	profitPrintf := printBalance(profit)
 	//fmt.Printf("srcChainId: %v, chainId: %v, token: %v, symbol: %v, price: %v, name: %v, srcToken: %v\n", bl.SrcChainId, bl.ChainId, bl.Token, bl.Symbol, bl.Price, bl.Name, bl.SrcToken)
 	fmt.Printf("%3v | %-21v | ", i, bl.Name)
-	fmt.Printf("%5v %5v %16v %16v | %15v | %15v | %15v", srcChain, destChain, balancePrint, totalSuplyPrint, profitPrintf, pricePrintf, profitPricePrintf)
+	fmt.Printf("%5v %7v %16v %16v | %15v | %13v | %15v", srcChain, destChain, balancePrint, totalSuplyPrint, profitPrintf, pricePrintf, profitPricePrintf)
 	if isLessThanZero {
 		fmt.Printf("      *")
 	}
