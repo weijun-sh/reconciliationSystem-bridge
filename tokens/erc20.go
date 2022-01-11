@@ -23,6 +23,8 @@ var erc20CodeParts = map[string][]byte{
 	"totalsupply": common.FromHex("0x18160ddd"),
 }
 
+var Decimal map[string]*big.Float = make(map[string]*big.Float)
+
 // GetErc20Balance get erc20 balacne of address
 func getErc20Balance(client *ethclient.Client, contract, address string) (*big.Float, error) {
 	//fmt.Printf("getErc20Balance, contract: %v, address: %v\n", contract, address)
@@ -96,6 +98,9 @@ func getErc20TotalSupply(client *ethclient.Client, contract string) (*big.Float,
 
 // getTokenDecimal get token decimal
 func getTokenDecimal(client *ethclient.Client, contract string) (*big.Float, error) {
+	if Decimal[contract] != nil {
+		return Decimal[contract], nil
+	}
 	//fmt.Printf("getTokenDecimal, contract: %v\n", contract)
 	data := make([]byte, 4)
 	copy(data[:4], erc20CodeParts["decimal"])
@@ -110,7 +115,8 @@ func getTokenDecimal(client *ethclient.Client, contract string) (*big.Float, err
 	}
 	b := fmt.Sprintf("0x%v", hex.EncodeToString(result))
 	decimal, _ := com.GetBigIntFromStr(b)
-	Decimal := big.NewFloat(math.Pow(10, float64(decimal.Int64())))
+	Decimal[contract] = big.NewFloat(math.Pow(10, float64(decimal.Int64())))
 	//fmt.Printf("getTokenDecimal, retb: %v\n", Decimal)
-	return Decimal, nil
+	return Decimal[contract], nil
 }
+
