@@ -79,9 +79,18 @@ func getErc20TotalSupply(client *ethclient.Client, contract string) (*big.Float,
 		To:   &to,
 		Data: data,
 	}
-	result, err := callContract(client, msg)
-	if err != nil {
+	var ok bool
+	var result []byte
+	var err error
+	for i := 0; i < 3; i++ {
+		result, err = callContract(client, msg)
+		if err == nil {
+			ok = true
+			break
+		}
 		fmt.Printf("getErc20TotalSupply, msg: %v, err: %v\n", msg, err)
+	}
+	if !ok {
 		return big.NewFloat(0), err
 	}
 	b := fmt.Sprintf("0x%v", hex.EncodeToString(result))

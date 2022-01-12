@@ -13,11 +13,12 @@ import (
 )
 
 var profitPrice *big.Float
+var minTvl float64
 
 func GetBalanceOfToken() {
+	minTvl = params.GetBridgeMinTvl()
 	profitPrice = big.NewFloat(0)
 	printfHeader()
-	minTvl := params.GetBridgeMinTvl()
 	bridgeList := params.GetBridgeList()
 	j := 0
 	minTvlBool := false
@@ -27,6 +28,7 @@ func GetBalanceOfToken() {
 		}
 		if !minTvlBool && bl.Tvl < minTvl { // Rank greater than min
 			printfTail(j)
+			fmt.Println()
 			minTvlBool = true
 		}
 		j += 1
@@ -117,7 +119,8 @@ func GetTokenBalances(bl *params.BridgeConfig) (*big.Float, string) {
 
 func printBalance(balanceTmp *big.Float) string {
 	big100 := big.NewFloat(10000000000)
-	if balanceTmp.Cmp(big100) >= 0 {
+	bigD100 := big.NewFloat(-10000000000)
+	if balanceTmp.Cmp(big100) >= 0 || balanceTmp.Cmp(bigD100) <= 0 {
 		return fmt.Sprintf("%e", balanceTmp)
 	}
 	return fmt.Sprintf("%0.2f", balanceTmp)
@@ -183,6 +186,8 @@ func GetTokenTotalSupply(bl *params.BridgeConfig) (*big.Float, string) {
 		totalSuplyPrint = "*addrInvalid"
 	case errors.Is(err, nil):
 		totalSuplyPrint = printBalance(totalSupplyTmp)
+	default:
+		totalSuplyPrint = "*notGot"
 	}
 	return totalSupplyTmp, totalSuplyPrint
 }
@@ -257,10 +262,9 @@ func GetBtcBalance(bl *params.BridgeConfig) (*big.Float, string) {
 
 // print
 func printfHeader() {
-	minTvl := params.GetBridgeMinTvl()
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
-	fmt.Printf("ps. update every 20 minutes\n")
-	fmt.Printf("ps. TVL(USD) >= %0.2f, sort descending\n", minTvl)
+	fmt.Printf("update every 30 minutes\n")
+	fmt.Printf("TVL(USD) >= %0.2f (1st), sort descending\n", minTvl)
 	pc := params.GetpriceConfig()
 	from := pc.PriceInfo.From
 	ptime := pc.PriceInfo.Time
@@ -296,6 +300,7 @@ func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePr
 	price := params.Price[sp]
 	if price <= 0.0 {
 		fmt.Printf("price is 0.0, sp: %v, srcToken: %v, Token: %v, bl.Symbol: %v\n", sp, bl.SrcToken, bl.Token, bl.Symbol)
+		price = bl.Price
 	}
 	pricePrintf := fmt.Sprintf("%0.4f", price)
 	if price < 0.0001 {
@@ -314,8 +319,12 @@ func printfBody(bl *params.BridgeConfig, i int, balanceTmp *big.Float, balancePr
 	//}
 	//profitTmp := new(big.Float).Mul(profit, d)
 	//profitPrintf := fmt.Sprintf("%0.f", profitTmp)
-	profitPrintf := fmt.Sprintf("%0.2f", profit)
-	fmt.Printf("%3v | %-21v | ", i, bl.Name)
+	profitPrintf := printBalance(profit)
+	length := len(bl.Name)
+	if length > 21 {
+		length = 21
+	}
+	fmt.Printf("%3v | %-21v | ", i, bl.Name[:length])
 	fmt.Printf("%5v %7v %16v %16v | %15v | %13v | %15v", srcChain, destChain, balancePrint, totalSuplyPrint, profitPrintf, pricePrintf, profitPricePrintf)
 	//fmt.Printf("%5v %7v %42v %42v | %30v | %13v | %15v", srcChain, destChain, bl.SrcToken, bl.DepositAddr, profitPrintf, pricePrintf, profitPricePrintf)
 	if isLessThanZero {
