@@ -236,9 +236,20 @@ func SetPriceConfig(config *PriceConfig) {
 	}
 }
 
+// GetPriceConfig set config items
+func GetpriceConfig() *PriceConfig {
+	return priceConfig
+}
+
 // PriceConfig config items (decode from toml file)
 type PriceConfig struct {
+	PriceInfo priceInfoConfig
 	SymbolPrice []*symbolPriceConfig
+}
+
+type priceInfoConfig struct {
+	From string
+	Time string
 }
 
 type symbolPriceConfig struct {
