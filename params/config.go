@@ -49,6 +49,7 @@ func init() {
 	ChainId["1285"] = "MOON"
 	ChainId["137"] = "MATIC"
 	ChainId["250"] = "FTM"
+	ChainId["288"] = "OETH"
 	ChainId["321"] = "KCS"
 	ChainId["336"] = "SHI"
 	ChainId["4689"] = "IOTEX"
